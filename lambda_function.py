@@ -76,6 +76,10 @@ def get_restaurant_response(session):
 
     if "attributes" in session and "restaurants" in session["attributes"]:
         restaurants = session["attributes"]["restaurants"]
+
+        if "selected_restaurant" in session["attributes"]:
+            selected = session["attributes"]["selected_restaurant"]
+            restaurants.remove(selected)
     else:
         restaurants = yelp.getYelp(get_location())
 
@@ -102,12 +106,6 @@ def get_answer(session, affirmative):
                 return response(speech_response_prompt(speech_text, True, speech_text))
             else:
                 # Answered No
-                # Remove restaurant from list of restaurants
-                if session["attributes"] and "restaurants" in session["attributes"] and "selected_restaurant" in session["attributes"]:
-                    all_restaurants = session["attributes"]["restaurants"]
-                    recommend.eliminate_restaurant(restaurants, session["attributes"]["selected_restaurant"])
-                    session["attributes"]["restaurants"] = all_restaurants
-
                 return get_restaurant_response(session)
         else:
             return get_fallback_response(session)
