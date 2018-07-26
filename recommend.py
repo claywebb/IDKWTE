@@ -41,8 +41,9 @@ def get_next_restaurant(restaurants):
 def eliminate_below_rating(restaurants, min_rating):
     new_list = []
     for restaurant in restaurants:
-        if restaurant["rating"] < min_rating:
-            eliminate_restaurant(restaurants, restaurant)
+        if restaurant["rating"] >= min_rating:
+            new_list.append(restaurant)
+    return new_list
 
 def eliminate_restaurant(restaurants, restaurant):
     restaurants.remove(restaurant)
