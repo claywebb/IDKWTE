@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """ simple fact sample app """
+import recommend
+import yelp
 
 from __future__ import print_function
 import json
@@ -68,8 +70,26 @@ def on_intent(request, session):
 def get_restaurant_response(session):
     """ get and return a restaurant """
 
-    attributes = {"STATE": WAITING_STATE}
-    return response_with_attributes(response_ssml_text_and_prompt("restaurant", False, "try again?"), attributes)
+    # Array of dictionaries. All the restaurants.
+    global restaurants
+
+    # TODO import all restaurants
+    if session["attributes"] and "restaurants" in session["attributes"]:
+        restaurants = session["attributes"]["restaurants"]
+    else:
+        restaurants = yelp.getYelp(get_location())
+
+    # TODO select restaurant
+    # Selected restaurant
+    restaurant = recommend.get_next_restaurant(restaurants)
+
+    attributes = {"STATE": WAITING_STATE,
+                  "restaurants": restaurants,
+                  "selected_restaurant": restaurant}
+
+    speech_text = get_text_from_restaurant(restaurant)
+
+    return response_with_attributes(response_ssml_text_and_prompt(speech_text, False, speech_text), attributes)
 
 def get_answer(session, affirmative):
     """ process user's response """
@@ -129,6 +149,46 @@ def on_launch(request, session):
 
 
 # --------------- Speech response handlers -----------------
+
+def get_text_from_restaurant(restaurant):
+    speech_text = "How about " + restaurant["name"] + "? "
+
+    if restaurant["categories"] and len(restaurant["categories"]) >= 2:
+        speech_text += "It specializes in " + restaurant["categories"][0]["title"] + \
+                        " and " + restaurant["categories"][1]["title"] + ". "
+    elif restaurant["categories"] and len(restaurant["categories"]) >= 1:
+        speech_text += "It specializes in " + restaurant["categories"][0]["title"] + ". "
+
+    speech_text += "It has a rating of " + str(restaurant["rating"]) + "stars " \
+                   " and is only " + get_distance_string(restaurant["distance"]) + " away!"
+
+    return speech_text
+
+def get_detailed_text_from_restaurant(restaurant):
+
+    # TODO make this text more detailed
+    speech_text = "Great! You selected " + restaurant["name"] + "! "
+
+    if restaurant["categories"] and len(restaurant["categories"]) >= 2:
+        speech_text += "It specializes in " + restaurant["categories"][0]["title"] + \
+                        " and " + restaurant["categories"][1]["title"] + ". "
+    elif restaurant["categories"] and len(restaurant["categories"]) >= 1:
+        speech_text += "It specializes in " + restaurant["categories"][0]["title"] + ". "
+
+    speech_text += "It has a rating of " + str(restaurant["rating"]) + "stars " \
+                   " and is only " + get_distance_string(restaurant["distance"]) + " away!"
+
+    return speech_text
+def get_distance_string(distance):
+
+    # TODO make this better
+    return str(int(distance)) + " meters"
+
+def get_location():
+
+    # TODO actually get location
+
+    return "Amazon Spheres"
 
 def speech_response(output, endsession):
     """  create a simple json response  """
