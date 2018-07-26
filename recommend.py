@@ -40,6 +40,7 @@ def eliminate_below_rating(restaurants, min_rating):
     for restaurant in restaurants:
         if restaurant["rating"] < min_rating:
             eliminate_restaurant(restaurant)
+    return restaurants
 
 def eliminate_restaurant(restaurants, restaurant):
     restaurants.remove(restaurant)
