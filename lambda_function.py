@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """ simple fact sample app """
+from __future__ import print_function
+
 import recommend
 import yelp
 
-from __future__ import print_function
 import json
 
 SKILL_NAME = "I Don't Know Where To Eat"
@@ -73,7 +74,7 @@ def get_restaurant_response(session):
     # Array of dictionaries. All the restaurants.
     global restaurants
 
-    if session["attributes"] and "restaurants" in session["attributes"]:
+    if "attributes" in session and "restaurants" in session["attributes"]:
         restaurants = session["attributes"]["restaurants"]
     else:
         restaurants = yelp.getYelp(get_location())
@@ -87,7 +88,8 @@ def get_restaurant_response(session):
 
     speech_text = get_text_from_restaurant(restaurant)
 
-    return response_with_attributes(response_ssml_text_and_prompt(speech_text, False, speech_text), attributes)
+    return response_with_attributes(speech_response_prompt(speech_text, False, speech_text), attributes)
+
 
 def get_answer(session, affirmative):
     """ process user's response """
@@ -96,7 +98,8 @@ def get_answer(session, affirmative):
         if session["attributes"]["STATE"] == WAITING_STATE:
             if affirmative:
                 # Answered YES
-                return response(response_ssml_text_and_prompt("Great!", True, ""))
+                speech_text = get_detailed_text_from_restaurant(session["attributes"]["selected_restaurant"])
+                return response(speech_response_prompt(speech_text, True, speech_text))
             else:
                 # Answered No
                 # Remove restaurant from list of restaurants
@@ -116,8 +119,7 @@ def get_help_response(session):
     """ get and return the help string  """
 
     speech_message = HELP_MESSAGE
-    return response(speech_response_prompt(speech_message,
-                                                       speech_message, False))
+    return response(speech_response_prompt(speech_message, False, speech_message))
 def get_launch_response(session):
     """ get and return the help string  """
 
@@ -162,10 +164,11 @@ def get_text_from_restaurant(restaurant):
     elif restaurant["categories"] and len(restaurant["categories"]) >= 1:
         speech_text += "It specializes in " + restaurant["categories"][0]["title"] + ". "
 
-    speech_text += "It has a rating of " + str(restaurant["rating"]) + "stars " \
+    speech_text += "It has a rating of " + str(restaurant["rating"]) + " stars" \
                    " and is only " + get_distance_string(restaurant["distance"]) + " away!"
 
     return speech_text
+
 
 def get_detailed_text_from_restaurant(restaurant):
 
@@ -178,20 +181,24 @@ def get_detailed_text_from_restaurant(restaurant):
     elif restaurant["categories"] and len(restaurant["categories"]) >= 1:
         speech_text += "It specializes in " + restaurant["categories"][0]["title"] + ". "
 
-    speech_text += "It has a rating of " + str(restaurant["rating"]) + "stars " \
+    speech_text += "It has a rating of " + str(restaurant["rating"]) + " stars" \
                    " and is only " + get_distance_string(restaurant["distance"]) + " away!"
 
     return speech_text
+
+
 def get_distance_string(distance):
 
     # TODO make this better
     return str(int(distance)) + " meters"
+
 
 def get_location():
 
     # TODO actually get location
 
     return "Amazon Spheres"
+
 
 def speech_response(output, endsession):
     """  create a simple json response  """
@@ -202,6 +209,7 @@ def speech_response(output, endsession):
         },
         'shouldEndSession': endsession
     }
+
 
 def dialog_response(endsession):
     """  create a simple json response with card """
@@ -218,6 +226,7 @@ def dialog_response(endsession):
         }
     }
 
+
 def speech_response_with_card(title, output, cardcontent, endsession):
     """  create a simple json response with card """
 
@@ -233,6 +242,7 @@ def speech_response_with_card(title, output, cardcontent, endsession):
         },
         'shouldEndSession': endsession
     }
+
 
 def response_ssml_text_and_prompt(output, endsession, reprompt_text):
     """ create a Ssml response with prompt  """
@@ -251,7 +261,8 @@ def response_ssml_text_and_prompt(output, endsession, reprompt_text):
         'shouldEndSession': endsession
     }
 
-def speech_response_prompt(output, reprompt_text, endsession):
+
+def speech_response_prompt(output, endsession, reprompt_text):
     """ create a simple json response with a prompt """
 
     return {
@@ -268,6 +279,7 @@ def speech_response_prompt(output, reprompt_text, endsession):
         'shouldEndSession': endsession
     }
 
+
 def response_with_attributes(speech_message, attributes):
     """ create a simple json response  """
     return {
@@ -275,6 +287,7 @@ def response_with_attributes(speech_message, attributes):
         'sessionAttributes': attributes,
         'response': speech_message
     }
+
 
 def response(speech_message):
     """ create a simple json response  """
