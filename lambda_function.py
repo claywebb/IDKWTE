@@ -2,19 +2,23 @@
 """ simple fact sample app """
 
 from __future__ import print_function
+import json
 
-import random
-
-SKILL_NAME = "I Don't Know What To Eat"
+SKILL_NAME = "I Don't Know Where To Eat"
 GET_FACT_MESSAGE = "Here's your fact: "
-HELP_MESSAGE = "I Don't Know What To Eat can help you find a nearby restaurant when you are indecisive! " \
+HELP_MESSAGE = "I Don't Know Where To Eat can help you find a nearby restaurant when you are indecisive! " \
                "Just say, Alexa, I don't know where to eat."
 HELP_REPROMPT = "Just say, Alexa, I don't know where to eat."
 STOP_MESSAGE = "Goodbye!"
-FALLBACK_MESSAGE = "The I Don't Know What To Eat skill can't help you with that.  " \
+FALLBACK_MESSAGE = "The I Don't Know Where To Eat skill can't help you with that.  " \
                    "It can help you find nearby restaurants and make suggestions. " \
-                   "To invoke this skill, just say, Alexa, I don't know what to eat."
+                   "To invoke this skill, just say, Alexa, I Don't Know Where To Eat."
 FALLBACK_REPROMPT = "Just say, Alexa, I don't know where to eat."
+
+BEGIN_STATE = "START"
+FAIL_STATE = "FAIL"
+
+LOGGING = True;
 
 # --------------- App entry point -----------------
 
@@ -41,14 +45,18 @@ def on_intent(request, session):
     intent_name = request['intent']['name']
 
     # process the intents
-    if intent_name == "GetNewFactIntent":
-        return get_fact_response()
+    if intent_name == "GetRestaurantIntent":
+        return get_restaurant_response(session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_help_response()
     elif intent_name == "AMAZON.StopIntent":
         return get_stop_response()
     elif intent_name == "AMAZON.CancelIntent":
         return get_stop_response()
+    elif intent_name == "AMAZON.YesIntent":
+        return get_answer(session, True)
+    elif intent_name == "AMAZON.NoIntent":
+        return get_answer(session, False)
     elif intent_name == "AMAZON.FallbackIntent":
         return get_fallback_response()
     else:
@@ -56,10 +64,13 @@ def on_intent(request, session):
         return get_help_response()
 
 
-def get_restaurant_response():
+def get_restaurant_response(session):
     """ get and return a restaurant """
 
-    return response(speech_response_with_card(SKILL_NAME, "Sample response", "sample response", True))
+    return response(response_ssml_text_and_prompt("restaurant", False, "try again?"))
+
+def get_answer(session, affirmative):
+
 
 def get_help_response():
     """ get and return the help string  """
@@ -70,7 +81,7 @@ def get_help_response():
 def get_launch_response():
     """ get and return the help string  """
 
-    return get_restaurant_response();
+    return get_restaurant_response()
 
 def get_stop_response():
     """ end the session, user wants to quit the game """
@@ -81,16 +92,20 @@ def get_stop_response():
 def get_fallback_response():
     """ end the session, user wants to quit the game """
 
+    attributes[]
+
     speech_output = FALLBACK_MESSAGE
     return response(speech_response(speech_output, False))
 
 def on_session_started():
     """" called when the session starts  """
-    #print("on_session_started")
+    if LOGGING:
+        print("on_session_started")
 
 def on_session_ended():
     """ called on session ends """
-    #print("on_session_ended")
+    if LOGGING:
+        print("on_session_ended")
 
 def on_launch(request):
     """ called on Launch, we reply with a launch message  """
