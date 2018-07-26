@@ -1,8 +1,8 @@
 from math import log
 import random
 
-max_radius = 1600;
-prob_selec = max(random.triangular(0,.1,.9),random.triangular(0,.1,.4));
+max_radius = 1600
+prob_selec = max(random.triangular(0,.1,.9),random.triangular(0,.1,.4))
 
 def set_radius(radius):
     global max_radius
@@ -39,8 +39,16 @@ def get_next_restaurant(restaurants):
 def eliminate_below_rating(restaurants, min_rating):
     for restaurant in restaurants:
         if restaurant["rating"] < min_rating:
-            eliminate_restaurant(restaurant)
+            eliminate_restaurant(restaurants, restaurant)
 
 def eliminate_restaurant(restaurants, restaurant):
     restaurants.remove(restaurant)
     return restaurants
+
+def init_recomendations(restaurants):
+    recommendations = []
+    for i in range(0, 10):
+        restaurant = get_next_restaurant(restaurants)
+        recommendations.append(restaurant)
+        restaurants = eliminate_restaurant(restaurants, restaurant)
+    return recommendations
