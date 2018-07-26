@@ -18,14 +18,14 @@ def decision(probability):
 def select_num(totRest):
     global prob_selec
     last = totRest
-    for n in range(1,totRest+1):
+    for n in range(0,totRest):
         selected = decision(prob_selec)
         if selected:
             last = n
             break
         prob_selec = prob_selec * .92
     if (last == totRest):
-        return random.randint(0,totRest)
+        return random.randint(0,totRest-1)
     else:
         return last
 
