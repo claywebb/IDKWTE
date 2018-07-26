@@ -55,15 +55,11 @@ def on_intent(request, session):
         print("invalid Intent reply with help")
         return get_help_response()
 
-def get_fact_response():
-    """ get and return a random fact """
-    randomFact = random.choice(data)
-    cardcontent = randomFact
-    speechOutput = GET_FACT_MESSAGE + randomFact
 
-    return response(speech_response_with_card(SKILL_NAME, speechOutput,
-                                                          cardcontent, True))
+def get_restaurant_response():
+    """ get and return a restaurant """
 
+    return response(speech_response_with_card(SKILL_NAME, "Sample response", "sample response", True))
 
 def get_help_response():
     """ get and return the help string  """
@@ -74,7 +70,7 @@ def get_help_response():
 def get_launch_response():
     """ get and return the help string  """
 
-    return get_fact_response()
+    return get_restaurant_response();
 
 def get_stop_response():
     """ end the session, user wants to quit the game """
