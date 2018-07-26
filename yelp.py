@@ -15,7 +15,8 @@ def getYelp(location):
         'radius': 1600,
         'location': location,
         'categories': 'restaurants',
-        'limit': 50
+        'limit': 50,
+        'open_now': True
     }
 
     url = url + '?' + urlencode(query)
@@ -23,3 +24,5 @@ def getYelp(location):
     businesses = json.loads(response.text)['businesses']
 
     return businesses
+
+print getYelp('Amazon Spheres')
