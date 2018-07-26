@@ -16,6 +16,7 @@ FALLBACK_MESSAGE = "The I Don't Know Where To Eat skill can't help you with that
 FALLBACK_REPROMPT = "Just say, Alexa, I don't know where to eat."
 
 BEGIN_STATE = "START"
+WAITING_STATE = "WAITING"
 FAIL_STATE = "FAIL"
 
 LOGGING = True;
@@ -31,7 +32,7 @@ def lambda_handler(event, context):
         on_session_started()
 
     if event['request']['type'] == "LaunchRequest":
-        return on_launch(event['request'])
+        return on_launch(event['request'], event['session'])
     elif event['request']['type'] == "IntentRequest":
         return on_intent(event['request'], event['session'])
     elif event['request']['type'] == "SessionEndedRequest":
@@ -48,17 +49,17 @@ def on_intent(request, session):
     if intent_name == "GetRestaurantIntent":
         return get_restaurant_response(session)
     elif intent_name == "AMAZON.HelpIntent":
-        return get_help_response()
+        return get_help_response(session)
     elif intent_name == "AMAZON.StopIntent":
-        return get_stop_response()
+        return get_stop_response(session)
     elif intent_name == "AMAZON.CancelIntent":
-        return get_stop_response()
+        return get_stop_response(session)
     elif intent_name == "AMAZON.YesIntent":
         return get_answer(session, True)
     elif intent_name == "AMAZON.NoIntent":
         return get_answer(session, False)
     elif intent_name == "AMAZON.FallbackIntent":
-        return get_fallback_response()
+        return get_fallback_response(session)
     else:
         print("invalid Intent reply with help")
         return get_help_response()
@@ -67,35 +68,49 @@ def on_intent(request, session):
 def get_restaurant_response(session):
     """ get and return a restaurant """
 
-    return response(response_ssml_text_and_prompt("restaurant", False, "try again?"))
+    attributes = {"STATE": WAITING_STATE}
+    return response_with_attributes(response_ssml_text_and_prompt("restaurant", False, "try again?"), attributes)
 
 def get_answer(session, affirmative):
+    """ process user's response """
+
+    if session["attributes"] and "STATE" in session["attributes"]:
+        if session["attributes"]["STATE"] == WAITING_STATE:
+            if affirmative:
+                # Answered YES
+                return response(response_ssml_text_and_prompt("Great!", True, ""))
+            else:
+                # Answered No
+                # TODO Remove restaurant from list
+                return get_restaurant_response(session)
+        else:
+            return get_fallback_response(session)
+    else:
+        return get_fallback_response(session)
 
 
-def get_help_response():
+def get_help_response(session):
     """ get and return the help string  """
 
     speech_message = HELP_MESSAGE
     return response(speech_response_prompt(speech_message,
                                                        speech_message, False))
-def get_launch_response():
+def get_launch_response(session):
     """ get and return the help string  """
 
-    return get_restaurant_response()
+    return get_restaurant_response(session)
 
-def get_stop_response():
+def get_stop_response(session):
     """ end the session, user wants to quit the game """
 
     speech_output = STOP_MESSAGE
     return response(speech_response(speech_output, True))
 
-def get_fallback_response():
+def get_fallback_response(session):
     """ end the session, user wants to quit the game """
 
-    attributes[]
-
     speech_output = FALLBACK_MESSAGE
-    return response(speech_response(speech_output, False))
+    return response(speech_response(speech_output, True))
 
 def on_session_started():
     """" called when the session starts  """
@@ -107,10 +122,10 @@ def on_session_ended():
     if LOGGING:
         print("on_session_ended")
 
-def on_launch(request):
+def on_launch(request, session):
     """ called on Launch, we reply with a launch message  """
 
-    return get_launch_response()
+    return get_launch_response(session)
 
 
 # --------------- Speech response handlers -----------------
@@ -188,6 +203,14 @@ def speech_response_prompt(output, reprompt_text, endsession):
             }
         },
         'shouldEndSession': endsession
+    }
+
+def response_with_attributes(speech_message, attributes):
+    """ create a simple json response  """
+    return {
+        'version': '1.0',
+        'sessionAttributes': attributes,
+        'response': speech_message
     }
 
 def response(speech_message):
