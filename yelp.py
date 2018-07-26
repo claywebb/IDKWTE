@@ -13,11 +13,14 @@ def getYelp(location):
     url = 'https://api.yelp.com/v3/businesses/search'
     query = {
         'radius': 1600,
-        'location': location
+        'location': location,
+        'categories': 'restaurants'
     }
 
     url = url + '?' + urlencode(query)
     response = requests.get(url, headers={'Authorization': 'Bearer ' + AUTH_TOKEN})
-    businesses = json.loads(response.text)['businesses']
+    businesses = json.loads(response.text)
 
     return businesses
+
+print json.dumps(getYelp('Amazon Spheres'))
