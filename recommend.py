@@ -47,8 +47,8 @@ def compare(rest1, rest2):
 
 
 def sort_restaurants(restaurants):
-    restaurants.sort([compare])
-
+    restaurants.sort(compare)
+    return restaurants
 
 def get_next_restaurant(restaurants):
     totRest = len(restaurants)
