@@ -7,7 +7,7 @@ except ImportError:
     #python3
     from urllib.parse import urlencode
 
-AUTH_TOKEN = 'isB958Rd1cSOaUSREJBtaJEKzsYvwUkpx0wxf56323V2udIzJoG1TNuB-oLMENDWX5Ve3qOL2iN82p3Qsoa9rgejPI2ypr5jOEu-wRX-fSrjTf2mK3TRiYCJrSJaW3Yx'
+AUTH_TOKEN = ''
 
 def getYelp(location):
     url = 'https://api.yelp.com/v3/businesses/search'
@@ -15,7 +15,8 @@ def getYelp(location):
         'radius': 1600,
         'location': location,
         'categories': 'restaurants',
-        'limit': 50
+        'limit': 50,
+        'open_now': True
     }
 
     url = url + '?' + urlencode(query)
