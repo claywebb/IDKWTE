@@ -70,6 +70,7 @@ def eliminate_restaurant(restaurants, restaurant):
 
 
 def init_recomendations(restaurants):
+    restaurants = sort_restaurants(restaurants)
     recommendations = []
     for i in range(0, 10):
         restaurant = get_next_restaurant(restaurants)
