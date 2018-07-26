@@ -1,4 +1,5 @@
 from math import log
+import random
 
 max_radius = 1.0;
 selection_multiplier = .2;
@@ -10,6 +11,9 @@ def set_radius(radius):
 def set_selectionmult(mult):
     global selection_multiplier
     selection_multiplier = mult
+
+def decision(probability):
+    return random.random() < probability
 
 def get_goodness(distance, rating):
     goodness = log(rating) + ((max_radius - distance) / 5)
@@ -25,3 +29,4 @@ def eliminate_below_rating(restaurants, min_rating):
 
 def eliminate_restaurant(restaurants, restaurant):
     restaurants.remove(restaurant)
+    return restaurant
