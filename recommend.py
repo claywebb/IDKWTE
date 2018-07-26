@@ -17,15 +17,17 @@ def decision(probability):
 
 def select_num(totRest):
     global prob_selec
+    last = totRest
     for n in range(1,totRest+1):
         selected = decision(prob_selec)
         if selected:
+            last = n
             break
         prob_selec = prob_selec * .92
-    if (n == totRest):
+    if (last == totRest):
         return random.randint(0,totRest)
     else:
-        return n
+        return last
 
 def get_goodness(distance, rating):
     goodness = log(rating) + (((max_radius/1600) - (distance/1600)) / 5)
