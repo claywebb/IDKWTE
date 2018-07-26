@@ -73,13 +73,11 @@ def get_restaurant_response(session):
     # Array of dictionaries. All the restaurants.
     global restaurants
 
-    # TODO import all restaurants
     if session["attributes"] and "restaurants" in session["attributes"]:
         restaurants = session["attributes"]["restaurants"]
     else:
         restaurants = yelp.getYelp(get_location())
 
-    # TODO select restaurant
     # Selected restaurant
     restaurant = recommend.get_next_restaurant(restaurants)
 
@@ -101,7 +99,12 @@ def get_answer(session, affirmative):
                 return response(response_ssml_text_and_prompt("Great!", True, ""))
             else:
                 # Answered No
-                # TODO Remove restaurant from list
+                # Remove restaurant from list of restaurants
+                if session["attributes"] and "restaurants" in session["attributes"] and "selected_restaurant" in session["attributes"]:
+                    all_restaurants = session["attributes"]["restaurants"]
+                    recommend.eliminate_restaurant(restaurants, session["attributes"]["selected_restaurant"])
+                    session["attributes"]["restaurants"] = all_restaurants
+
                 return get_restaurant_response(session)
         else:
             return get_fallback_response(session)
