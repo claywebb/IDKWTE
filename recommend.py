@@ -17,15 +17,17 @@ def decision(probability):
 
 def select_num(totRest):
     global prob_selec
+    last = totRest
     for n in range(1,totRest+1):
         selected = decision(prob_selec)
         if selected:
+            last = n
             break
         prob_selec = prob_selec * .92
-    if (n == totRest):
+    if (last == totRest):
         return random.randint(0,totRest)
     else:
-        return n
+        return last
 
 def get_goodness(distance, rating):
     goodness = log(rating) + (((max_radius/1600) - (distance/1600)) / 5)
@@ -37,9 +39,16 @@ def get_next_restaurant(restaurants):
     return restaurants[nextInt]
 
 def eliminate_below_rating(restaurants, min_rating):
+    new_list = []
     for restaurant in restaurants:
+<<<<<<< HEAD
         if restaurant["rating"] < min_rating:
             eliminate_restaurant(restaurants, restaurant)
+=======
+        if restaurant["rating"] >= min_rating:
+            new_list.append(restaurant)
+    return new_list
+>>>>>>> 332cdb6a140c6fd8eb5f90fba975c64d475b9ae0
 
 def eliminate_restaurant(restaurants, restaurant):
     restaurants.remove(restaurant)
