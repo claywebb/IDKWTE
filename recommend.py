@@ -29,4 +29,4 @@ def eliminate_below_rating(restaurants, min_rating):
 
 def eliminate_restaurant(restaurants, restaurant):
     restaurants.remove(restaurant)
-    return restaurant
+    return restaurants
