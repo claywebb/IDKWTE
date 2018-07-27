@@ -2,6 +2,8 @@
 """ simple fact sample app """
 from __future__ import print_function
 
+from botocore.vendored import requests
+
 import recommend
 import yelp
 
@@ -37,22 +39,22 @@ def lambda_handler(event, context):
         on_session_started()
 
     if event['request']['type'] == "LaunchRequest":
-        return on_launch(event['request'], event['session'])
+        return on_launch(event['request'], event['session'], event)
     elif event['request']['type'] == "IntentRequest":
-        return on_intent(event['request'], event['session'])
+        return on_intent(event['request'], event['session'], event)
     elif event['request']['type'] == "SessionEndedRequest":
         return on_session_ended()
 
 # --------------- Response handlers -----------------
 
-def on_intent(request, session):
+def on_intent(request, session, event):
     """ called on receipt of an Intent  """
 
     intent_name = request['intent']['name']
 
     # process the intents
     if intent_name == "GetRestaurantIntent":
-        return get_restaurant_response(session)
+        return get_restaurant_response(session, event)
     elif intent_name == "AMAZON.HelpIntent":
         return get_help_response(session)
     elif intent_name == "AMAZON.StopIntent":
@@ -60,17 +62,17 @@ def on_intent(request, session):
     elif intent_name == "AMAZON.CancelIntent":
         return get_stop_response(session)
     elif intent_name == "AMAZON.YesIntent":
-        return get_answer(session, True)
+        return get_answer(session, True, event)
     elif intent_name == "AMAZON.NoIntent":
-        return get_answer(session, False)
+        return get_answer(session, False, event)
     elif intent_name == "AMAZON.FallbackIntent":
         return get_fallback_response(session)
     else:
         print("invalid Intent reply with help")
-        return get_help_response()
+        return get_help_response(session)
 
 
-def get_restaurant_response(session):
+def get_restaurant_response(session, event):
     """ get and return a restaurant """
 
     # Array of dictionaries. All the restaurants.
@@ -83,8 +85,7 @@ def get_restaurant_response(session):
             selected = session["attributes"]["selected_restaurant"]
             restaurants.remove(selected)
     else:
-        restaurants = recommend.init_recomendations(yelp.getYelp(get_location()))
-
+        restaurants = recommend.init_recomendations(yelp.getYelp(get_location(event)))
 
     # Selected restaurant
     restaurant = recommend.get_next_restaurant(restaurants)
@@ -98,7 +99,7 @@ def get_restaurant_response(session):
     return response_with_attributes(speech_response_prompt(speech_text, False, speech_text), attributes)
 
 
-def get_answer(session, affirmative):
+def get_answer(session, affirmative, event):
     """ process user's response """
 
     if session["attributes"] and "STATE" in session["attributes"]:
@@ -111,7 +112,7 @@ def get_answer(session, affirmative):
                 return response(speech_response_with_card("I Don't Know Where To Eat", card_content, card_link, speech_text, True))
             else:
                 # Answered No
-                return get_restaurant_response(session)
+                return get_restaurant_response(session, event)
         else:
             return get_fallback_response(session)
     else:
@@ -123,10 +124,13 @@ def get_help_response(session):
 
     speech_message = HELP_MESSAGE
     return response(speech_response_prompt(speech_message, False, speech_message))
-def get_launch_response(session):
+
+
+def get_launch_response(session, event):
     """ get and return the help string  """
 
-    return get_restaurant_response(session)
+    return get_restaurant_response(session, event)
+
 
 def get_stop_response(session):
     """ end the session, user wants to quit the game """
@@ -134,26 +138,30 @@ def get_stop_response(session):
     speech_output = STOP_MESSAGE
     return response(speech_response(speech_output, True))
 
+
 def get_fallback_response(session):
     """ end the session, user wants to quit the game """
 
     speech_output = FALLBACK_MESSAGE
     return response(speech_response(speech_output, True))
 
+
 def on_session_started():
     """" called when the session starts  """
     if LOGGING:
         print("on_session_started")
+
 
 def on_session_ended():
     """ called on session ends """
     if LOGGING:
         print("on_session_ended")
 
-def on_launch(request, session):
+
+def on_launch(request, session, event):
     """ called on Launch, we reply with a launch message  """
 
-    return get_launch_response(session)
+    return get_launch_response(session, event)
 
 
 # --------------- Speech response handlers -----------------
@@ -202,18 +210,20 @@ def get_distance_string(distance):
     return str(int(distance)) + " meters"
 
 
-def get_location():
+def get_location(event):
 
     # TODO actually get location
-    #
-    # device_id = event["context"]["System"]["device"]["deviceId"]
-    # api_access_token = event["context"]["System"]["apiAccessToken"]
-    #
-    # api_uri = "https://api.amazonalexa.com/v1/devices/{}/settings/address".format(device_id)
-    # api_headers = {"Accept": "application/json", "Authorization": "Bearer {}".format(api_access_token)}
-    #
-    # api_response = requests.get(api_uri, headers=api_headers)
-    # data = api_response.json()
+
+    device_id = event["context"]["System"]["device"]["deviceId"]
+    api_access_token = event["context"]["System"]["apiAccessToken"]
+
+    api_uri = "https://api.amazonalexa.com/v1/devices/{}/settings/address".format(device_id)
+    api_headers = {"Accept": "application/json", "Authorization": "Bearer {}".format(api_access_token)}
+
+    api_response = requests.get(api_uri, headers=api_headers)
+    data = api_response.json()
+
+    print(data)
 
     return "Amazon Spheres"
 
