@@ -107,9 +107,9 @@ def get_answer(session, affirmative, event):
             if affirmative:
                 # Answered YES
                 speech_text = get_detailed_text_from_restaurant(session["attributes"]["selected_restaurant"])
-                card_content = get_detailed_card_from_restaurant(session["attributes"]["selected_restaurant"])
                 card_link = get_maps_link_from_restaurant(session["attributes"]["selected_restaurant"])
-                return response(speech_response_with_card("I Don't Know Where To Eat", card_content, card_link, speech_text, True))
+                card_content = get_detailed_card_from_restaurant(session["attributes"]["selected_restaurant"]) + "\n\n" + card_link
+                return response(speech_response_with_card("I Don't Know Where To Eat", speech_text, card_link, card_content, True))
             else:
                 # Answered No
                 return get_restaurant_response(session, event)
@@ -185,7 +185,7 @@ def get_detailed_text_from_restaurant(restaurant):
 
     # TODO make this text more detailed
     speech_text = "Great! You selected " + restaurant["name"] + "! "
-    speech_text += "It is located at " + get_restaurant_address(restaurant) + ". "
+    speech_text += "It is located at " + get_restaurant_address1(restaurant) + ". "
 
     # if restaurant["categories"] and len(restaurant["categories"]) >= 2:
     #     speech_text += "It specializes in " + restaurant["categories"][0]["title"] + \
@@ -199,10 +199,10 @@ def get_detailed_text_from_restaurant(restaurant):
     return speech_text
 
 def get_detailed_card_from_restaurant(restaurant):
-    return restaurant["name"] + "\n" + restaurant["address1"] + "\n" "Click the link below for Google Maps:"
+    return restaurant["name"] + "\n" + get_restaurant_address(restaurant) + "\n" "Click the link below for Google Maps:"
 
 def get_maps_link_from_restaurant(restaurant):
-    return ("https://google.com/maps/place/" + restaurant["address1"]).replace(" ", "+")
+    return ("https://google.com/maps/place/" + restaurant["location"]["address1"]).replace(" ", "+")
 
 def get_distance_string(distance):
 
@@ -223,14 +223,21 @@ def get_location(event):
     api_response = requests.get(api_uri, headers=api_headers)
     data = api_response.json()
 
-    print(data)
+    location = data['addressLine1'] + ", " + data['city'] + " " + data['postalCode']
 
-    return "Amazon Spheres"
+    return location
 
 
 def get_restaurant_address(restaurant):
     location = restaurant["location"]['display_address']
     address = location[0] + ", " + location[1]
+
+    return address
+
+
+def get_restaurant_address1(restaurant):
+    location = restaurant["location"]['display_address']
+    address = location[0]
 
     return address
 
