@@ -76,4 +76,4 @@ def init_recomendations(restaurants):
         restaurant = get_next_restaurant(restaurants)
         recommendations.append(restaurant)
         restaurants = eliminate_restaurant(restaurants, restaurant)
-    return recommendations
+    return random.shuffle(recommendations)
