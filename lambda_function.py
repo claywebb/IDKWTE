@@ -106,7 +106,9 @@ def get_answer(session, affirmative):
             if affirmative:
                 # Answered YES
                 speech_text = get_detailed_text_from_restaurant(session["attributes"]["selected_restaurant"])
-                return response(speech_response_prompt(speech_text, True, speech_text))
+                card_content = get_detailed_card_from_restaurant(session["attributes"]["selected_restaurant"])
+                card_link = get_maps_link_from_restaurant(session["attributes"]["selected_restaurant"])
+                return response(speech_response_with_card("I Don't Know Where To Eat", card_content, card_link, speech_text, True))
             else:
                 # Answered No
                 return get_restaurant_response(session)
@@ -188,6 +190,11 @@ def get_detailed_text_from_restaurant(restaurant):
 
     return speech_text
 
+def get_detailed_card_from_restaurant(restaurant):
+    return restaurant["name"] + "\n" + restaurant["address1"] + "\n" "Click the link below for Google Maps:"
+
+def get_maps_link_from_restaurant(restaurant):
+    return ("https://google.com/maps/place/" + restaurant["address1"]).replace(" ", "+")
 
 def get_distance_string(distance):
 
@@ -245,14 +252,15 @@ def dialog_response(endsession):
     }
 
 
-def speech_response_with_card(title, output, cardcontent, endsession):
+def speech_response_with_card(title, output, link, cardcontent, endsession):
     """  create a simple json response with card """
 
     return {
         'card': {
             'type': 'Simple',
             'title': title,
-            'content': cardcontent
+            'content': cardcontent,
+            'redirectionUrl': link
         },
         'outputSpeech': {
             'type': 'PlainText',
