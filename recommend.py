@@ -2,7 +2,7 @@ from math import log
 import random
 
 max_radius = 1600
-prob_selec = min(random.triangular(0, .1, .9), random.triangular(0, .1, .05))
+prob_selec = min(random.triangular(0, .1, .9), random.triangular(0, .1, .1))
 
 
 def set_radius(radius):
@@ -70,7 +70,7 @@ def eliminate_restaurant(restaurants, restaurant):
 
 
 def init_recomendations(restaurants):
-    #restaurants = sort_restaurants(restaurants)
+    restaurants = sort_restaurants(restaurants)
     recommendations = []
     for i in range(0, 11):
         restaurant = get_next_restaurant(restaurants)
