@@ -72,8 +72,8 @@ def eliminate_restaurant(restaurants, restaurant):
 def init_recomendations(restaurants):
     #restaurants = sort_restaurants(restaurants)
     recommendations = []
-    for i in range(0, 10):
+    for i in range(0, 11):
         restaurant = get_next_restaurant(restaurants)
         recommendations.append(restaurant)
         restaurants = eliminate_restaurant(restaurants, restaurant)
-    return recommendations
+    return random.shuffle(recommendations)
