@@ -22,7 +22,7 @@ BEGIN_STATE = "START"
 WAITING_STATE = "WAITING"
 FAIL_STATE = "FAIL"
 
-LOGGING = True;
+LOGGING = True
 
 # --------------- App entry point -----------------
 
@@ -81,7 +81,8 @@ def get_restaurant_response(session):
             selected = session["attributes"]["selected_restaurant"]
             restaurants.remove(selected)
     else:
-        restaurants = yelp.getYelp(get_location())
+        restaurants = recommend.init_recomendations(yelp.getYelp(get_location()))
+
 
     # Selected restaurant
     restaurant = recommend.get_next_restaurant(restaurants)
@@ -174,15 +175,16 @@ def get_detailed_text_from_restaurant(restaurant):
 
     # TODO make this text more detailed
     speech_text = "Great! You selected " + restaurant["name"] + "! "
+    speech_text += "It is located at " + get_restaurant_address(restaurant) + ". "
 
-    if restaurant["categories"] and len(restaurant["categories"]) >= 2:
-        speech_text += "It specializes in " + restaurant["categories"][0]["title"] + \
-                        " and " + restaurant["categories"][1]["title"] + ". "
-    elif restaurant["categories"] and len(restaurant["categories"]) >= 1:
-        speech_text += "It specializes in " + restaurant["categories"][0]["title"] + ". "
-
-    speech_text += "It has a rating of " + str(restaurant["rating"]) + " stars" \
-                   " and is only " + get_distance_string(restaurant["distance"]) + " away!"
+    # if restaurant["categories"] and len(restaurant["categories"]) >= 2:
+    #     speech_text += "It specializes in " + restaurant["categories"][0]["title"] + \
+    #                     " and " + restaurant["categories"][1]["title"] + ". "
+    # elif restaurant["categories"] and len(restaurant["categories"]) >= 1:
+    #     speech_text += "It specializes in " + restaurant["categories"][0]["title"] + ". "
+    #
+    # speech_text += "It has a rating of " + str(restaurant["rating"]) + " stars" \
+    #                " and is only " + get_distance_string(restaurant["distance"]) + " away!"
 
     return speech_text
 
@@ -203,6 +205,13 @@ def get_location():
     # TODO actually get location
 
     return "Amazon Spheres"
+
+
+def get_restaurant_address(restaurant):
+    location = restaurant["location"]['display_address']
+    address = location[0] + ", " + location[1]
+
+    return address
 
 
 def speech_response(output, endsession):
