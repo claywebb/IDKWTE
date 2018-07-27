@@ -2,7 +2,7 @@ from math import log
 import random
 
 max_radius = 1600
-prob_selec = min(random.triangular(0, .1, .9), random.triangular(0, .1, .4))
+prob_selec = max(random.triangular(0, .1, .9), random.triangular(0, .1, .4))
 
 
 def set_radius(radius):
