@@ -22,6 +22,8 @@ BEGIN_STATE = "START"
 WAITING_STATE = "WAITING"
 FAIL_STATE = "FAIL"
 
+permissions = ["read::alexa:device:all:address"]
+
 LOGGING = True
 
 # --------------- App entry point -----------------
@@ -203,6 +205,15 @@ def get_distance_string(distance):
 def get_location():
 
     # TODO actually get location
+    #
+    # device_id = event["context"]["System"]["device"]["deviceId"]
+    # api_access_token = event["context"]["System"]["apiAccessToken"]
+    #
+    # api_uri = "https://api.amazonalexa.com/v1/devices/{}/settings/address".format(device_id)
+    # api_headers = {"Accept": "application/json", "Authorization": "Bearer {}".format(api_access_token)}
+    #
+    # api_response = requests.get(api_uri, headers=api_headers)
+    # data = api_response.json()
 
     return "Amazon Spheres"
 
